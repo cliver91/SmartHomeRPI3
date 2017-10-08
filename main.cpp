@@ -9,7 +9,6 @@
 
 int main(int argc, char *argv[])
 {
-//asdasdasd
     //Crea un nuevo tipo de elemento llamado MemoriaLogin, y hay que importarlo con "import MemoriaLoginCPP 1.0"
     qmlRegisterType <MemoriaLogin>("MemoriaLoginCPP",1,0,"MemoriaLogin");
     qmlRegisterType <MemoriaConfig>("MemoriaConfigCPP",1,0,"MemoriaConfig");

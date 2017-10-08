@@ -16,6 +16,10 @@ public:
     Q_INVOKABLE int leer_temperatura();
 
 private:
+    int reset();
+    void write(unsigned char data);
+    unsigned char read();
+    void wait();
 
 signals:
 
