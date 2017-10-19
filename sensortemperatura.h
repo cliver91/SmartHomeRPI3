@@ -5,6 +5,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QPoint>
+#include <QFile>
 
 class SensorTemperatura : public QObject
 {
@@ -12,14 +13,9 @@ class SensorTemperatura : public QObject
 public:
     explicit SensorTemperatura(QObject *parent = nullptr);
 
-    Q_INVOKABLE void Init_temperatura();
-    Q_INVOKABLE int leer_temperatura();
+    Q_INVOKABLE float leer_temperatura();
 
 private:
-    int reset();
-    void write(unsigned char data);
-    unsigned char read();
-    void wait();
 
 signals:
 

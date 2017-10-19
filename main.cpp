@@ -16,8 +16,6 @@ int main(int argc, char *argv[])
     qmlRegisterType <SensorTemperatura>("SensorTemperaturaCPP", 1, 0, "SensorTemperatura");
 
     SensorTemperatura sensor;   //Se crea un objeto de la clase SensorTemperatura
-    sensor.Init_temperatura();  //Inicializa el sensor de temperatura
-
 
     QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
     QGuiApplication app(argc, argv);

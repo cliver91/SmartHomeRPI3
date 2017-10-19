@@ -89,8 +89,17 @@ ApplicationWindow {
         repeat: true
         running: true
         onTriggered: {
-            sensor.leer_temperatura();
+            temptext.text = sensor.leer_temperatura().toFixed(1) + "°C";    //El toFixed trunca el float a un decimal
         }
+    }
+
+    Text {
+        id: temptext
+        text: "--°C"
+        visible: true
+        color: "white"
+        font.pointSize: 26
+        anchors.right: parent.right
     }
 
     footer: TabBar {
