@@ -16,6 +16,7 @@ ApplicationWindow {
     onCurrenttabsignal: {
         if(current!==2){
             clockanimator.running = true        //Cuando hubo un cambio de tabs se inician las dos transiciones (una se prende y otra se apaga)
+            tempanimator.running = true
 
             instanciaventanalogin.visible = true    //Primero se hace visible antes de hacerlo aparecer (no se define como visible para que no se superponga con nada)
             loginanimator.running = true
@@ -100,6 +101,14 @@ ApplicationWindow {
         color: "white"
         font.pointSize: 26
         anchors.right: parent.right
+    }
+    OpacityAnimator {
+        id: tempanimator
+        target: temptext
+        from: (mytabBar.currentIndex==0)? 0:1;
+        to: (mytabBar.currentIndex==0)? 1:0;
+        duration: 500
+        running: false
     }
 
     footer: TabBar {
