@@ -14,24 +14,60 @@ ApplicationWindow {
     width: 720
     height: 480
     title: qsTr("Smart Home")
-    property int current: 0     //Hice esta variable porque no se como leer el argumento de la senal dentro de los objetos
-    signal currenttabsignal (int currenttab)       //Esta senal se activa cada vez que se modifica mytabBar.currentindex
-    signal loginsignalmain (int val)            //Senal para conectar ventanalogin con ventanaconfig animator
-    onCurrenttabsignal: {
 
-        if(currenttab!==2){
-            clockanimator.running = true        //Cuando hubo un cambio de tabs se inician las dos transiciones (una se prende y otra se apaga)
+
+
+    property int current: 0     //Hice esta variable porque no se como leer el argumento de la senal dentro de los objetos
+    property int onoff: 0       //Se define como 1 o 0 si se quiere que las animaciones se prendan o apaguen
+    signal currenttabsignal (int currenttab, int anterior)       //Esta senal se activa cada vez que se modifica mytabBar.currentindex
+
+    onCurrenttabsignal: {
+        if(currenttab===0){
+            buttonconfig.on = false         //Se define el boton como no presionado (por si se vuelve a la pantalla main sin haber presionado el boton)
+            onoff = 1                       //Se van a prender las animaciones de clock y temp
+            clockanimator.running = true
+            tempanimator.running = true
+            if(anterior===1){               //Si el estado anterior fue VentanaLogin hay que ocultar el teclado
+//                onoff=0                     //Se va a ocultar el teclado
+//                loginanimator.running = true
+                //instanciaventanalogin.visible = false
+            }
+            else if(anterior===2){
+                //La animation de ocultar VentanaConfig ya se hace dentro de VentanaConfig
+                instanciaventanaconfig.visible = false  //Se oculta la instancia
+            }
+
+            console.log("current = 0")
+        }
+        if(currenttab===1){
+            buttonconfig.on = true          //El boton se presiono (esto es por si se llega a VentanaLogin sin haber presionado el boton)
+
+            onoff = 1
+            instanciaventanalogin.visible = true    //Se hace visible (se habia hecho no visible para que no joda con la pantalla principal)
+            loginanimator.running = true    //Se enciende el teclado
+            //instanciaventanalogin.loginsignalmain(1)
+
+            onoff = 0
+            clockanimator.running = true    //Se apagan el reloj y temp
             tempanimator.running = true
 
-            instanciaventanalogin.visible = true    //Primero se hace visible antes de hacerlo aparecer (no se define como visible para que no se superponga con nada)
-            loginanimator.running = true
+            instanciaventanaconfig.visible = false
 
-            console.log("current!=2")
+            console.log("current = 1")
         }
+
         if(currenttab===2){        //Si es igual a 2 significa que esta en config
-            console.log("current=2")
-//            mytabBaranimator.running = true
-//            mytabBar.visible = false
+            //loginsignalmain(1)      //Se levanta la bandera para avisar a ventanaconfig animator
+            onoff = 0
+//            loginanimator.running = true    //Se oculta la VentanaLogin
+            instanciaventanalogin.loginsignalmain(0)
+            instanciaventanalogin.visible = false
+
+            onoff = 1
+            instanciaventanaconfig.visible = true       //Se pone visible antes de hacerlo aparecer
+            instanciaventanaconfiganimator.running = true
+
+            console.log("current = 2")
         }
     }
 
@@ -51,23 +87,23 @@ ApplicationWindow {
                 y: mainwindow.height /2 - 30
 
                 onLoginsignal: {
-                    console.log("login signal")
-                    loginsignalmain(1)      //Se levanta la bandera para avisar a ventanaconfig animator
-                    instanciaventanaconfig.visible = true       //Se pone visible antes de hacerlo aparecer
-                    instanciaventanaconfiganimator.running = true
-                    if(loginsignal.loginstate!==1) {
-                        currenttabsignal(2)      //Si loginstate es 1 significa que se logeo correctamente, asi que le manda la senal con el 2 para activar el mytabBaranimator
+
+                    if(loginstate===1) {
+                        instanciaventanalogin.visible = false
+                        instanciaventanalogin.opacity = 0
+                        currenttabsignal(2,1)      //Si loginstate es 1 significa que se logeo correctamente, asi que le manda la senal con el 2 para activar el mytabBaranimator
                     }
-                    else {
-                        currenttabsignal(0)
-                    }
+                }
+                signal loginsignalmain (int val)            //Senal para conectar ventanalogin con ventanaconfig animator
+                onLoginsignalmain: {
+                    loginsignalmain.connect(loginsignal)        //Cuando cambie loginsignalmain (propia de la INSTANCIA de VentanaLogin) se va a conectar con loginsignal (propia de VentanaLogin)
                 }
             }
             OpacityAnimator {       //Animacion para mostrar/ocultar la VentanaLogin
                 id: loginanimator
                 target: instanciaventanalogin;
-                from: (current===1)? 0:1
-                to: (current===1)? 1:0
+                from: (onoff===1)? 0:1
+                to: (onoff===1)? 1:0
                 duration: 500
                 running: false
             }
@@ -86,10 +122,8 @@ ApplicationWindow {
                 }
                 onConfigsignal: {
                     if(configstate===3){
-                        //loginsignalmain(3)          //Se le dice a ventanalogin que ya se deslogeo el user
-                        //mytabBar.setCurrentIndex(0) //Se cambia el indice del tabbar
-                        current=0                   //Se define que el current tab es el 0
-                        currenttabsignal(0)         //Se avisa que se cambio el indice
+                        currenttabsignal(0,2)         //Se avisa que se cambio el indice
+
 
                     }
                 }
@@ -97,8 +131,8 @@ ApplicationWindow {
             OpacityAnimator {       //Animacion para mostrar/ocultar La VentanaConfig
                 id: instanciaventanaconfiganimator
                 target: instanciaventanaconfig
-                from: (loginsignalmain!==1)? 0:1;
-                to: (loginsignalmain!==1)? 1:0;
+                from: (onoff===1)? 0:1;
+                to: (onoff===1)? 1:0;
                 duration: 500
                 running: false
             }
@@ -113,8 +147,8 @@ ApplicationWindow {
     OpacityAnimator {       //Animacion para mostrar/ocultar el Clock
         id: clockanimator
         target: clock
-        from: current===0? 0:1
-        to: current===0? 1:0
+        from: onoff===1? 0:1
+        to: onoff===1? 1:0
         duration: 500
         running: false
     }
@@ -126,11 +160,13 @@ ApplicationWindow {
 ////////////////////////////////   FIN INSTANCIACIONES   ////////////////////////////////
 
     Timer {
+        id: maintimer
         interval: 1000
         repeat: true
         running: true
         onTriggered: {
             temptext.text = sensor.leer_temperatura().toFixed(1) + "°C";    //El toFixed trunca el float a un decimal
+
         }
     }
 
@@ -145,8 +181,8 @@ ApplicationWindow {
     OpacityAnimator {
         id: tempanimator
         target: temptext
-        from: (current===0)? 0:1
-        to: (current===0)? 1:0
+        from: onoff===1? 0:1
+        to: onoff===1? 1:0
         duration: 500
         running: false
     }
@@ -157,18 +193,28 @@ ApplicationWindow {
         anchors.bottom: parent.bottom
         width: 120
         height: 50
-
+        property bool on: false
         onClicked: {
-            if(current===0){
-                current=1
-                currenttabsignal(current)     //Da la senal para los animators
-                console.log(current)
+            if(on===false){
+                on = true
+                currenttabsignal(1,0)
             }
-            else if(current===1){
-                current=0
-                currenttabsignal(current)     //Da la senal para los animators
-                console.log(current)
+            else if(on===true){
+                on = false
+                currenttabsignal(0,1)
             }
+
+
+//            if(current===0){
+//                current=1
+//                currenttabsignal(current)     //Da la senal para los animators
+//                console.log(current)
+//            }
+//            else if(current===1){
+//                current=0
+//                currenttabsignal(current)     //Da la senal para los animators
+//                console.log(current)
+//            }
         }
 
     }

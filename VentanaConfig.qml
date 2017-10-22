@@ -40,7 +40,7 @@ Page {
             console.log("configstate=3")
             frame_superioranimator.running = true       //Idem al if anterior
             frame_inferioranimator.running = true
-            loginsignal(0)          //activa la senal para que en ventanalogin vuelva a aparecer la columnalogin, tabbar, etc.
+            //loginsignal(0)          //activa la senal para que en ventanalogin vuelva a aparecer la columnalogin, tabbar, etc.
         }
     }
 

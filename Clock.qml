@@ -35,7 +35,8 @@ Item {
 
 
     Timer {
-        interval: 100; running: true; repeat: true;
+        id: clocktimer
+        interval: 500; running: true; repeat: true;
         onTriggered: clock.timeChanged()
     }
     Item {

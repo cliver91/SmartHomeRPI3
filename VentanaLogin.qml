@@ -19,7 +19,7 @@ Page {
     //Camino de senales: VentanaLogin->instanciaventanaconfig->VentanaConfig->instanciacambiarpass->VentanaCambiarPass
     signal loginsignal (int loginstate)    //Senal para saber cuando mostrar/ocultar todos los objetos de VentanaLogin y VentanaConfig
     onLoginsignal: {
-        //console.log("loginsignal")
+        console.log("loginsignal")
         instanciakeyboardanimator.running = true
         columnaloginanimator.running = true
     }
@@ -147,13 +147,13 @@ Page {
                     console.log(passinput.text)
                     if(memlogin.login_input(users.currentIndex,passinput.text)){
                         passinput.text = ""         //Borra el contenido de la pass
-                        tablogin.signaluser_ventanalogin(users.currentIndex)         //Se pone el numero de user en la senal. Esta despues tiene que conectarse con VentanaConfig y despues con VentanaCambiarPass
+                        signaluser_ventanalogin(users.currentIndex)         //Se pone el numero de user en la senal. Esta despues tiene que conectarse con VentanaConfig y despues con VentanaCambiarPass
 //                        columnalogin.visible = false    //Oculta las cosas de ventanalogin
 //                        instanciakeyboard.visible = false //Oculta el keyboard
 //                        instanciaventanaconfig.visible = true   //Muestra la ventana config
 //                        mytabBar.visible = false              //Oculta la barra de pestanas
                         console.log("login OK")
-                        tablogin.loginsignal(1)              //Se activa la senal con un 1 para avisar que hubo login correcto
+                        loginsignal(1)              //Se activa la senal con un 1 para avisar que hubo login correcto
 
                     }
                     else{
