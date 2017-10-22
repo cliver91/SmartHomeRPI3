@@ -5,34 +5,33 @@ import QtQuick.Window 2.0
 
 import SensorTemperaturaCPP 1.0
 
+
+
+
 ApplicationWindow {
     id: mainwindow
     visible: true
     width: 720
     height: 480
     title: qsTr("Smart Home")
-
-    signal currenttabsignal (int current)       //Esta senal se activa cada vez que se modifica mytabBar.currentindex
+    property int current: 0     //Hice esta variable porque no se como leer el argumento de la senal dentro de los objetos
+    signal currenttabsignal (int currenttab)       //Esta senal se activa cada vez que se modifica mytabBar.currentindex
     signal loginsignalmain (int val)            //Senal para conectar ventanalogin con ventanaconfig animator
     onCurrenttabsignal: {
 
-        if(current!==2){
+        if(currenttab!==2){
             clockanimator.running = true        //Cuando hubo un cambio de tabs se inician las dos transiciones (una se prende y otra se apaga)
             tempanimator.running = true
 
             instanciaventanalogin.visible = true    //Primero se hace visible antes de hacerlo aparecer (no se define como visible para que no se superponga con nada)
             loginanimator.running = true
-            if(current===0){
-                mytabBaranimator.running = true
-                mytabBar.visible = true
-            }
 
             console.log("current!=2")
         }
-        if(current===2){        //Si es igual a 2 significa que esta en config
+        if(currenttab===2){        //Si es igual a 2 significa que esta en config
             console.log("current=2")
-            mytabBaranimator.running = true
-            mytabBar.visible = false
+//            mytabBaranimator.running = true
+//            mytabBar.visible = false
         }
     }
 
@@ -67,8 +66,8 @@ ApplicationWindow {
             OpacityAnimator {       //Animacion para mostrar/ocultar la VentanaLogin
                 id: loginanimator
                 target: instanciaventanalogin;
-                from: (mytabBar.currentIndex==1)? 0:1;
-                to: (mytabBar.currentIndex==1)? 1:0;
+                from: (current===1)? 0:1
+                to: (current===1)? 1:0
                 duration: 500
                 running: false
             }
@@ -87,9 +86,11 @@ ApplicationWindow {
                 }
                 onConfigsignal: {
                     if(configstate===3){
-                        loginsignalmain(3)          //Se le dice a ventanalogin que ya se deslogeo el user
-                        mytabBar.setCurrentIndex(0) //Se cambia el indice del tabbar
+                        //loginsignalmain(3)          //Se le dice a ventanalogin que ya se deslogeo el user
+                        //mytabBar.setCurrentIndex(0) //Se cambia el indice del tabbar
+                        current=0                   //Se define que el current tab es el 0
                         currenttabsignal(0)         //Se avisa que se cambio el indice
+
                     }
                 }
             }
@@ -112,8 +113,8 @@ ApplicationWindow {
     OpacityAnimator {       //Animacion para mostrar/ocultar el Clock
         id: clockanimator
         target: clock
-        from: mytabBar.currentIndex===0? 0:1
-        to: mytabBar.currentIndex===0? 1:0
+        from: current===0? 0:1
+        to: current===0? 1:0
         duration: 500
         running: false
     }
@@ -144,46 +145,68 @@ ApplicationWindow {
     OpacityAnimator {
         id: tempanimator
         target: temptext
-        from: (mytabBar.currentIndex===0)? 0:1
-        to: (mytabBar.currentIndex===0)? 1:0
+        from: (current===0)? 0:1
+        to: (current===0)? 1:0
         duration: 500
         running: false
     }
 
-    footer: TabBar {
-        id: mytabBar
-        spacing: 100
+    Button {
+        id: buttonconfig
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        width: 120
+        height: 50
 
-        TabButton {
-            id: tabPrincipal
-            text: qsTr("Principal")
-            width: parent.width /2
-            onClicked: {
-                tabPrincipal.enabled = false        //Deshabilita el tab principal para que no se apriete y active las animaciones
-                tabconfig.enabled = true            //Habilita el otro porque en otra ocasion lo deshabilitamos
-                tabPrincipal.text = "Principal"
-                mainwindow.currenttabsignal(mytabBar.currentIndex)
+        onClicked: {
+            if(current===0){
+                current=1
+                currenttabsignal(current)     //Da la senal para los animators
+                console.log(current)
+            }
+            else if(current===1){
+                current=0
+                currenttabsignal(current)     //Da la senal para los animators
+                console.log(current)
             }
         }
-        TabButton {
-            id: tabconfig
-            text: qsTr("Configuración")
-            width: parent.width /2
-            onClicked: {
-                tabPrincipal.enabled = true         //Idem a tabprincipal
-                tabconfig.enabled = false
-                tabPrincipal.text = "Volver"
-                mainwindow.currenttabsignal(mytabBar.currentIndex)
-            }
-        }
+
     }
-    OpacityAnimator {           //Animacion para ocultar/mostrar la tabBar cuando se logea un usuario
-        id: mytabBaranimator
-        target: mytabBar
-        from: (mytabBar.currentIndex===2)? 0:1
-        to:(mytabBar.currentIndex===2)? 1:0
-        duration: 500
-        running: false
-    }
+
+//    footer: TabBar {
+//        id: mytabBar
+//        spacing: 100
+
+//        TabButton {
+//            id: tabPrincipal
+//            text: qsTr("Principal")
+//            width: parent.width /2
+//            onClicked: {
+//                tabPrincipal.enabled = false        //Deshabilita el tab principal para que no se apriete y active las animaciones
+//                tabconfig.enabled = true            //Habilita el otro porque en otra ocasion lo deshabilitamos
+//                tabPrincipal.text = "Principal"
+//                mainwindow.currenttabsignal(mytabBar.currentIndex)
+//            }
+//        }
+//        TabButton {
+//            id: tabconfig
+//            text: qsTr("Configuración")
+//            width: parent.width /2
+//            onClicked: {
+//                tabPrincipal.enabled = true         //Idem a tabprincipal
+//                tabconfig.enabled = false
+//                tabPrincipal.text = "Volver"
+//                mainwindow.currenttabsignal(mytabBar.currentIndex)
+//            }
+//        }
+//    }
+//    OpacityAnimator {           //Animacion para ocultar/mostrar la tabBar cuando se logea un usuario
+//        id: mytabBaranimator
+//        target: mytabBar
+//        from: (mytabBar.currentIndex===2)? 0:1
+//        to:(mytabBar.currentIndex===2)? 1:0
+//        duration: 500
+//        running: false
+//    }
 
 }
