@@ -22,15 +22,6 @@ Page {
         //console.log("loginsignal")
         instanciakeyboardanimator.running = true
         columnaloginanimator.running = true
-        //mytabBaranimator.running = true
-//        if(loginstate===1){
-            instanciaventanaconfig.visible = true       //Se pone visible antes de hacerlo aparecer
-            instanciaventanaconfiganimator.running = true
-//        }
-//        else {
-//            instanciaventanaconfiganimator.running = true   //Se hace la transicion antes de ocultarlo
-//            instanciaventanaconfig.visible = false
-//        }
     }
 
 
@@ -62,30 +53,7 @@ Page {
         running: false
     }
 
-    VentanaConfig {
-        id: instanciaventanaconfig
-        visible: false      //No se tiene que poner visible porque se superpone sobre el teclado y no lo deja usar!
-        opacity: 0          //Se le pone opacidad 0 en lugar de visibilidad 0 para poder hacerlo aparecer con OpacityAnimator
-        anchors.centerIn: parent
-        signal signaluser_config (real user_config)     //senal propia de la INSTANCIA de VentanaConfig
-        onSignaluser_config: {
-            signaluser_config.connect(signaluser_ventanaconfig) //Cuando cambia la senal signaluser_config (propia de esta INSTANCIA), la va a conectar con la senal signaluser_ventanaconfig (propia de VentanaConfig.qml)
-        }
-        onConfigsignal: {
-//            if(configstate===3){
-//                console.log("configstate=3")
-//                loginsignal(0)
-//            }
-        }
-    }
-    OpacityAnimator {       //Animacion para mostrar/ocultar La VentanaConfig
-        id: instanciaventanaconfiganimator
-        target: instanciaventanaconfig
-        from: (loginsignal.loginstate!==1)? 0:1;
-        to: (loginsignal.loginstate!==1)? 1:0;
-        duration: 500
-        running: false
-    }
+
 
     //Creo una instancia de MemoriaLogin para tener acceso a la clase memorialogin.cpp
     MemoriaLogin {

@@ -79,8 +79,8 @@ Page {
     OpacityAnimator {
         id: instanciacambiarpassanimator
         target: instanciacambiarpass
-        from: (configsignal.configstate===1)? 0:1;        //Si el estado es cambiarpass se muestra/oculta
-        to: (configsignal.configstate===1)? 1:0;
+        from: (configsignal.configstate===1)? 1:0        //Si el estado es cambiarpass se muestra/oculta
+        to: (configsignal.configstate===1)? 0:1
         duration: 500
         running: false
     }
@@ -182,8 +182,8 @@ Page {
     OpacityAnimator {
         id: frame_superioranimator
         target: frame_superior
-        from: (configsignal.configstate===1 || configsignal.configstate===3)? 1:0;        //Si el estado es cambiarpass o guardar se oculta/muestra
-        to: (configsignal.configstate===1 || configsignal.configstate===3)? 0:1;
+        from: (configsignal.configstate===1 || configsignal.configstate===3)? 0:1        //Si el estado es cambiarpass o guardar se oculta/muestra
+        to: (configsignal.configstate===1 || configsignal.configstate===3)? 1:0
         duration: 500
         running: false
     }
@@ -295,8 +295,8 @@ Page {
     OpacityAnimator {
         id: frame_inferioranimator
         target: frame_inferior
-        from: (configsignal.configstate>0)? 1:0//(configsignal.configstate>0)? 1:0        //Si el estado es cambiarpass, cambiartelefono o guardar se oculta. Sino se muestra
-        to: (configsignal.configstate>0)? 0:1
+        from: (configsignal.configstate>0)? 0:1//(configsignal.configstate>0)? 1:0        //Si el estado es cambiarpass, cambiartelefono o guardar se oculta. Sino se muestra
+        to: (configsignal.configstate>0)? 1:0
         duration: 500
         running: false
     }

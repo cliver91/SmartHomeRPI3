@@ -13,13 +13,20 @@ ApplicationWindow {
     title: qsTr("Smart Home")
 
     signal currenttabsignal (int current)       //Esta senal se activa cada vez que se modifica mytabBar.currentindex
+    signal loginsignalmain (int val)            //Senal para conectar ventanalogin con ventanaconfig animator
     onCurrenttabsignal: {
+
         if(current!==2){
             clockanimator.running = true        //Cuando hubo un cambio de tabs se inician las dos transiciones (una se prende y otra se apaga)
             tempanimator.running = true
 
             instanciaventanalogin.visible = true    //Primero se hace visible antes de hacerlo aparecer (no se define como visible para que no se superponga con nada)
             loginanimator.running = true
+            if(current===0){
+                mytabBaranimator.running = true
+                mytabBar.visible = true
+            }
+
             console.log("current!=2")
         }
         if(current===2){        //Si es igual a 2 significa que esta en config
@@ -45,7 +52,10 @@ ApplicationWindow {
                 y: mainwindow.height /2 - 30
 
                 onLoginsignal: {
-
+                    console.log("login signal")
+                    loginsignalmain(1)      //Se levanta la bandera para avisar a ventanaconfig animator
+                    instanciaventanaconfig.visible = true       //Se pone visible antes de hacerlo aparecer
+                    instanciaventanaconfiganimator.running = true
                     if(loginsignal.loginstate!==1) {
                         currenttabsignal(2)      //Si loginstate es 1 significa que se logeo correctamente, asi que le manda la senal con el 2 para activar el mytabBaranimator
                     }
@@ -64,6 +74,35 @@ ApplicationWindow {
             }
         }
 
+        Page {
+            VentanaConfig {
+                id: instanciaventanaconfig
+                visible: false      //No se tiene que poner visible porque se superpone sobre el teclado y no lo deja usar!
+                opacity: 0          //Se le pone opacidad 0 en lugar de visibilidad 0 para poder hacerlo aparecer con OpacityAnimator
+                x: mainwindow.width /2
+                y: mainwindow.height /2 - 30
+                signal signaluser_config (real user_config)     //senal propia de la INSTANCIA de VentanaConfig
+                onSignaluser_config: {
+                    signaluser_config.connect(signaluser_ventanaconfig) //Cuando cambia la senal signaluser_config (propia de esta INSTANCIA), la va a conectar con la senal signaluser_ventanaconfig (propia de VentanaConfig.qml)
+                }
+                onConfigsignal: {
+                    if(configstate===3){
+                        loginsignalmain(3)          //Se le dice a ventanalogin que ya se deslogeo el user
+                        mytabBar.setCurrentIndex(0) //Se cambia el indice del tabbar
+                        currenttabsignal(0)         //Se avisa que se cambio el indice
+                    }
+                }
+            }
+            OpacityAnimator {       //Animacion para mostrar/ocultar La VentanaConfig
+                id: instanciaventanaconfiganimator
+                target: instanciaventanaconfig
+                from: (loginsignalmain!==1)? 0:1;
+                to: (loginsignalmain!==1)? 1:0;
+                duration: 500
+                running: false
+            }
+        }
+
     Clock {
         id:clock
         anchors.top: parent.top
@@ -73,8 +112,8 @@ ApplicationWindow {
     OpacityAnimator {       //Animacion para mostrar/ocultar el Clock
         id: clockanimator
         target: clock
-        from: (mytabBar.currentIndex==0)? 0:1;
-        to: (mytabBar.currentIndex==0)? 1:0;
+        from: mytabBar.currentIndex===0? 0:1
+        to: mytabBar.currentIndex===0? 1:0
         duration: 500
         running: false
     }
@@ -105,8 +144,8 @@ ApplicationWindow {
     OpacityAnimator {
         id: tempanimator
         target: temptext
-        from: (mytabBar.currentIndex==0)? 0:1;
-        to: (mytabBar.currentIndex==0)? 1:0;
+        from: (mytabBar.currentIndex===0)? 0:1
+        to: (mytabBar.currentIndex===0)? 1:0
         duration: 500
         running: false
     }
@@ -141,8 +180,8 @@ ApplicationWindow {
     OpacityAnimator {           //Animacion para ocultar/mostrar la tabBar cuando se logea un usuario
         id: mytabBaranimator
         target: mytabBar
-        from: (currenttabsignal.current===2)? 0:1
-        to:(currenttabsignal.current===2)? 1:0
+        from: (mytabBar.currentIndex===2)? 0:1
+        to:(mytabBar.currentIndex===2)? 1:0
         duration: 500
         running: false
     }
